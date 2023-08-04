@@ -1,0 +1,56 @@
+= Camel integration with Salesforce
+
+image::images/integration-1.png[][architecture macro]
+
+image::images/integration-2.png[][architecture macro 2]
+
+== Salesforce
+
+=== Create a Connected App 
+
+Access and login in the https://developer.salesforce.com/signup[Salesforce Developer].
+After login you will be directed to your custom salesforce tenant (with a different URL).
+
+Access the following page, changing your tenant url: 
+
+https://your-salesforce-url/lightning/setup/NavigationMenus/home
+
+And access `New Connected App` button.
+
+image::images/connected-app-1.png[creating a conntected app]
+image::images/connected-app-2.png[creating a conntected app]
+image::images/connected-app-3.png[creating a conntected app]
+image::images/connected-app-4.png[creating a conntected app]
+
+In the page of your recently created app, access `Oauth Credentials` button and take note of your Consumer Key, and Consume Secret.
+
+Now it's time to authorize your application, remember to change the variables `salesforce-tenant-url` and `client-id` for your own values. Remembering that the client-id parameter is your `Consumer Key`.
+
+https://<salesforce-tenant-url>/services/oauth2/authorize?response_type=token&client_id=<client-id>&redirect_uri=https://<salesforce-tenant-url>/services/oauth2/success&display=touch
+
+You will be redirect to a authorization page, give the authorization. 
+After you will be redirected again to a URL, copy it and take the refresh_token parameter from it.
+
+=== Application Setup
+
+Now that you already know the consumer-key, consumer-secret and refresh-token, ajust the `application.properties` file with the correct values.
+
+Let's generate the Salesforce DTO object from Lead
+
+    mvn org.apache.camel.maven:camel-salesforce-maven-plugin:generate \
+    -DcamelSalesforce.clientId=<your-consumer-key> \
+    -DcamelSalesforce.clientSecret=<your-consume-secret> \
+    -DcamelSalesforce.userName=<your-username-same-that-appears-when-you-did-the-authorize-step> \
+    -DcamelSalesforce.password=<user-password> \
+    -DcamelSalesforce.includePattern=Lead
+
+Adjust all the values in the `application.properties` file.
+
+== Running the application in dev mode
+
+You can run your application in dev mode that enables live coding using:
+
+    ./mvnw compile quarkus:dev
+
+
+> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
